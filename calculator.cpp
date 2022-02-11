@@ -1,16 +1,77 @@
 #include <windows.h>
 
-/* This is where all the input to the window goes to */
+#include<windows.h>
+#include<iostream>
+#include<cstdlib>
+
+HWND textfield, b1,b2,b3,b4, TextBox1,TextBox2;
+
+using namespace std;
+
 LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) {
 	switch(Message) {
-		
-		/* Upon destruction, tell the main thread to stop */
+
+		case WM_CREATE:
+        textfield = CreateWindow("STATIC",
+                                "Please input two numbers",WS_VISIBLE | WS_CHILD | WS_BORDER,
+                                20,20,200,25,
+                                hwnd,NULL,NULL,NULL);
+        TextBox1 = CreateWindow("EDIT",
+                                "",WS_BORDER|WS_CHILD|WS_VISIBLE,
+                                20,60,200,25,
+                                hwnd,NULL,NULL,NULL);
+        TextBox2 = CreateWindow("EDIT",
+                                "",WS_BORDER|WS_CHILD|WS_VISIBLE,
+                                20,90,200,25,
+                                hwnd,NULL,NULL,NULL);
+		b1 = CreateWindow("BUTTON"," + ",WS_VISIBLE | WS_CHILD | WS_BORDER,
+                                30,130,40,25,hwnd,(HMENU) 1,NULL,NULL);
+        b2 = CreateWindow("BUTTON"," - ",WS_VISIBLE | WS_CHILD | WS_BORDER,
+                                80,130,40,25,hwnd,(HMENU) 2,NULL,NULL);
+        b3 = CreateWindow("BUTTON"," * ",WS_VISIBLE | WS_CHILD | WS_BORDER,
+                                130,130,40,25,hwnd,(HMENU) 3,NULL,NULL);
+        b4 = CreateWindow("BUTTON"," / ",WS_VISIBLE | WS_CHILD | WS_BORDER,
+                                180,130,40,25,hwnd,(HMENU) 4,NULL,NULL);
+		case WM_COMMAND:
+
+            double x;
+            char num1[20],num2[20];
+            GetWindowText(TextBox1,num1,20);
+            GetWindowText(TextBox2,num2,20);
+            
+            switch (LOWORD(wParam))
+            {
+            case 1:
+                x=atof(num1)+atof(num2);
+                sprintf(num1,"%f",x);
+                ::MessageBox(hwnd,num1,"result",MB_OK);
+                break;
+            case 2:
+                x=atof(num1)-atof(num2);
+                sprintf(num1,"%f",x);
+                ::MessageBox(hwnd,num1,"result",MB_OK);
+                break;
+            case 3:
+                x=atof(num1)*atof(num2);
+                sprintf(num1,"%f",x);
+                ::MessageBox(hwnd,num1,"result",MB_OK);
+                break;
+            case 4:
+                x=atof(num1)/atof(num2);
+                sprintf(num1,"%f",x);
+                ::MessageBox(hwnd,num1,"result",MB_OK);
+                break;
+            default:
+                break;
+            }
+
+        break;
 		case WM_DESTROY: {
 			PostQuitMessage(0);
 			break;
 		}
 		
-		/* All other messages (a lot of them) are processed using default procedures */
+	
 		default:
 			return DefWindowProc(hwnd, Message, wParam, lParam);
 	}
@@ -31,7 +92,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	wc.hCursor	 = LoadCursor(NULL, IDC_ARROW);
 	
 	/* White, COLOR_WINDOW is just a #define for a system color, try Ctrl+Clicking it */
-	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
+	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+9);
 	wc.lpszClassName = "WindowClass";
 	wc.hIcon	 = LoadIcon(NULL, IDI_APPLICATION); /* Load a standard icon */
 	wc.hIconSm	 = LoadIcon(NULL, IDI_APPLICATION); /* use the name "A" to use the project icon */
@@ -41,11 +102,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		return 0;
 	}
 
-	hwnd = CreateWindowEx(WS_EX_CLIENTEDGE,"WindowClass","Caption",WS_VISIBLE|WS_OVERLAPPEDWINDOW,
+	hwnd = CreateWindowEx(WS_EX_CLIENTEDGE,"WindowClass","My Calculator",WS_VISIBLE|WS_SYSMENU,
 		CW_USEDEFAULT, /* x */
 		CW_USEDEFAULT, /* y */
-		640, /* width */
-		480, /* height */
+		250, /* width */
+		200, /* height */
 		NULL,NULL,hInstance,NULL);
 
 	if(hwnd == NULL) {
@@ -53,14 +114,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		return 0;
 	}
 
-	/*
-		This is the heart of our program where all input is processed and 
-		sent to WndProc. Note that GetMessage blocks code flow until it receives something, so
-		this loop will not produce unreasonably high CPU usage
-	*/
+	
 	while(GetMessage(&msg, NULL, 0, 0) > 0) { /* If no error is received... */
 		TranslateMessage(&msg); /* Translate key codes to chars if present */
 		DispatchMessage(&msg); /* Send it to WndProc */
 	}
 	return msg.wParam;
 }
+
+
+
